@@ -73,11 +73,13 @@ const App = () => {
 
   const deleteObject = nameDel => {
     const personToDelete = persons.find(person => person.name === nameDel)
-    personService
-      .deleteObject(personToDelete.id)
-        .then(response => {
-          setPersons(persons.filter(person => person.name !== nameDel))
-        })
+    if (window.confirm(`Poistetaanko henkilö ${nameDel}?`)) {
+      personService
+        .deleteObject(personToDelete.id)
+          .then(response => {
+            setPersons(persons.filter(person => person.name !== nameDel))
+          })
+    }
   } 
 
   const handleNameChange = (event) => {
