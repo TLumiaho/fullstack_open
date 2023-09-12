@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import axios from 'axios'
 import { useEffect } from 'react'
+import personService from './services/persons'
 
 const PersonForm = (props) => {
   return (
@@ -24,11 +25,11 @@ const PersonForm = (props) => {
   )
 }
 
-const Persons = ({ persons}) => {
+const Persons = ({ persons, deleteObject}) => {
   return (
     <div>
       {persons.map(person =>
-        <p key={person.name}>{person.name} {person.number}</p>
+        <p key={person.name}>{person.name} {person.number} <button onClick={() => deleteObject(person.name)}> delete </button></p>
       )}
     </div>
   )
@@ -43,10 +44,10 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
   
   useEffect(() => {
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        setPersons(response.data)
+    personService
+      .getAll()
+        .then(allPersons => {
+          setPersons(allPersons)
       })
   }, [])
 
@@ -57,11 +58,27 @@ const App = () => {
       number: newNumber
     }
     if (!isNewNameInList()) {
-      setPersons(persons.concat(nameObject))  
+      personService
+        .create(nameObject)
+          .then(newPerson => {
+            setPersons(persons.concat(newPerson))
+            setNewName('')
+            setNewNumber('')
+        })
+      //setPersons(persons.concat(nameObject))  
     } else {
       window.alert(`${newName} is already added to phonebook`)
     } 
   }
+
+  const deleteObject = nameDel => {
+    const personToDelete = persons.find(person => person.name === nameDel)
+    personService
+      .deleteObject(personToDelete.id)
+        .then(response => {
+          setPersons(persons.filter(person => person.name !== nameDel))
+        })
+  } 
 
   const handleNameChange = (event) => {
     setNewName(event.target.value)
@@ -91,7 +108,7 @@ const App = () => {
         handleNumberChange={handleNumberChange}
       />
       <h2>Numbers</h2>
-      <Persons persons={persons}/>
+      <Persons persons={persons} deleteObject={deleteObject}/>
     </div>
   )
 
