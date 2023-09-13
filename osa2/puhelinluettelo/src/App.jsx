@@ -63,7 +63,7 @@ const App = () => {
   ]) 
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
-  const [notMes, setNotMes] = useState('error')
+  const [notMes, setNotMes] = useState(null)
   
   useEffect(() => {
     personService
